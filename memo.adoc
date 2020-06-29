@@ -1,0 +1,16 @@
+= memo
+
+[source,bash]
+.PJ初期化
+----
+npm init next-app nextjs-blog --example "https://github.com/zeit/next-learn-starter/tree/master/learn-starter" # <1>
+----
+<1> nextjs-blog ディレクトリを生成して初期化する。
+
+[source,bash]
+.開発サーバ起動
+----
+npm run dev
+# or
+yarn dev
+----
