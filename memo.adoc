@@ -4,6 +4,8 @@
 .PJ初期化
 ----
 npm init next-app nextjs-blog --example "https://github.com/zeit/next-learn-starter/tree/master/learn-starter" # <1>
+# or
+yarn create next-app nextjs-blog --example "https://github.com/zeit/next-learn-starter/tree/master/learn-starter"
 ----
 <1> nextjs-blog ディレクトリを生成して初期化する。
 
@@ -14,3 +16,34 @@ npm run dev
 # or
 yarn dev
 ----
+
+[quote]
+____
+Next.js では、ページとは pages ディレクトリに存在するファイルからエクスポートされる React コンポーネントです。
+
+ページは ファイル名 に基づいてルーティングに関連づけられます。例えば、開発時は：
+
+* pages/index.js は / にルーティングされます。
+* pages/posts/first-post.js は /posts/first-post としてルーティングされます。
+____
+
+Link compornent::
++
+--
+[source]
+----
+Read <Link href="/posts/first-post"><a>this page!</a></Link>
+----
+--
++
+Link コンポーネントは **クライアントサイドのページ遷移(ナビゲーション)** として機能する。
++
+--
+[quote]
+____
+クライアントサイドのナビゲーションとは、ページ遷移が JavaScript を使って 行われることを意味し、ブラウザによって行われるデフォルトのページ遷移よりも高速です。
+
+Next.js のアプリの外にある外部のページにリンクを貼る必要があるときは、 Link 無しで <a> タグだけを使ってください。
+className といった属性を加える必要があるときは、 Link タグでなく、a タグに加えてください。
+____
+--
