@@ -1,5 +1,7 @@
 = memo
 
+== 初期化
+
 [source,bash]
 .PJ初期化
 ----
@@ -17,6 +19,8 @@ npm run dev
 yarn dev
 ----
 
+== pages
+
 [quote]
 ____
 Next.js では、ページとは pages ディレクトリに存在するファイルからエクスポートされる React コンポーネントです。
@@ -27,18 +31,16 @@ Next.js では、ページとは pages ディレクトリに存在するファ�
 * pages/posts/first-post.js は /posts/first-post としてルーティングされます。
 ____
 
-Link compornent::
-+
---
+== Link compornent
+
 [source]
 ----
 Read <Link href="/posts/first-post"><a>this page!</a></Link>
 ----
---
-+
+
 Link コンポーネントは **クライアントサイドのページ遷移(ナビゲーション)** として機能する。
-+
---
+
+
 [quote]
 ____
 クライアントサイドのナビゲーションとは、ページ遷移が JavaScript を使って 行われることを意味し、ブラウザによって行われるデフォルトのページ遷移よりも高速です。
@@ -46,4 +48,66 @@ ____
 Next.js のアプリの外にある外部のページにリンクを貼る必要があるときは、 Link 無しで <a> タグだけを使ってください。
 className といった属性を加える必要があるときは、 Link タグでなく、a タグに加えてください。
 ____
+
+注意点として。下記のようにhtmlのタグとreactのタグで頭文字の大文字小文字で判別するケースがよくある。
+
+[horizontal]
+link::: htmlが提供するスタイルシートを読み込むためのタグ
+Link::: Reactが提供するリンク用のタグ
+
+== CSS スタイリング
+
+[source]
+----
+<style jsx>{`
+   ...
+`}</style>
+----
+
+[quote]
+____
+これは styled-jsx というライブラリを使用しています。これは「CSS-in-JS」のライブラリ、すなわち、React コンポーネント内で CSS を書くことができ、CSS スタイルがスコープ付けられます（他のコンポーネントは影響を受けません）。
+____
+
+CSSモジュール::
++
+--
+* CSS モジュールを使うと __CSS ファイルを React コンポーネントの中でインポートすることができるように__ なる
+* CSS モジュールを使用するためには、 **CSS ファイル名は .module.css で終わる** 必要がある
+* CSS モジュールは自動的に一意のクラス名を生成する
+** つまり、CSS モジュールを使っているかぎりは、クラス名の衝突を気にする必要はない
+--
++
+[source]
+----
+import styles from './layout.module.css' // <1>
+
+export default function Layout({ children }) {
+  return <div className={styles.container}>{children}</div> // <2>
+}
+----
+<1> `styles` として CSS モジュールをインポートする
+<2> `styles.<class-name>` を `className` として使う
+
+グローバルな CSS::
++
+--
+* グローバルな CSS を読み込む場合は **pages ディレクトリ配下の _app.js** に記載する
+** 逆に、ここ以外の場所ではグローバルな CSS を **インポート** できない！(あくまでもインポートができない)
+*** CSS ファイル自体はどこでも、どんな名前でもOK
+* App コンポーネントはすべてのページに共通するトップレベルのコンポーネント
+* App コンポーネントで状態を保持することもできる
+--
++
+--
+[source]
+----
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+----
+--
++
+--
+IMPORTANT: `_app.js` を **追加した** ときはサーバーの再起動が必要！
 --
