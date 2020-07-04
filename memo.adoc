@@ -1,5 +1,7 @@
 = memo
 
+https://qiita.com/thesugar/items/01896c1faa8241e6b1bc#nextjs-%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB[大幅にリニューアルされた Next.js のチュートリアルをどこよりも早く全編和訳しました]
+
 == 初期化
 
 [source,bash]
@@ -78,7 +80,7 @@ CSSモジュール::
 ** つまり、CSS モジュールを使っているかぎりは、クラス名の衝突を気にする必要はない
 --
 +
-[source]
+[source, javascript]
 ----
 import styles from './layout.module.css' // <1>
 
@@ -100,7 +102,7 @@ export default function Layout({ children }) {
 --
 +
 --
-[source]
+[source, javascript]
 ----
 export default function App({ Component, pageProps }) {
   return <Component {...pageProps} />
@@ -111,3 +113,108 @@ export default function App({ Component, pageProps }) {
 --
 IMPORTANT: `_app.js` を **追加した** ときはサーバーの再起動が必要！
 --
+
+== プリレンダリング
+
+[quote]
+____
+開発モード（npm run dev あるいは yarn dev を実行したとき）では、静的生成を使用しているページであっても、すべてのページが毎回のリクエストごとにプリレンダリングされます。
+____
+
+* next.js ではページ単位でサーバサイドレンダリングか静的生成を選択可能
+* デフォルトでは静的生成をするべき
+** マーケティングページ
+** ブログ記事
+** E コマースの商品リスト
+** ヘルプやドキュメンテーション
+* 必要に応じてサーバサイドレンダリングを選択する
+** 頻繁に更新されるデータを表示するページ
+** 毎回のリクエストごとに内容が変わるページ
+
+* next.js では、ビルド時に外部からデータを取得して静的ページを生成できる
+
+データありの静的生成 (getStaticProps)::
++
+--
+[source, javascript]
+----
+export default function Home(props) { ... }
+
+export async function getStaticProps() {
+    // ファイルシステムや API、DB などから外部データを取得する
+    const data = ...
+
+    // `props` キーに対応する値が `Home` コンポーネントに渡される
+    return {
+        props: ...
+    }
+}
+----
+--
++
+--
+* `getStaticProps` は **本番環境用のビルド時に実行** される
+** 逆に言うと、ビルド時にデータのソースにアクセスできる必要がある
+* 上記のサンプルでは外部データを取得して `Home` の `props` に渡している
+* `getStaticProps` は **ページ からのみ export できる**
+--
++
+--
+[quote]
+____
+このページにはいくつか外部に依存しているデータがあるよ。だからビルド時にこのページをプリレンダリングするときは、まずその依存関係をしっかり解決してよ！
+____
+--
++
+--
+NOTE: 開発環境では、getStaticProps は毎回のリクエストごとに実行されます。
+--
+
+== サーバーサイドレンダリング
+
+サーバーサイドレンダリングでは `getServerSideProps` を使う。
+
+[source, javascript]
+----
+export async function getServerSideProps(context) { // <1>
+  return {
+    props: {
+      // コンポーネントに渡すための props
+    }
+  }
+}
+----
+<1> `context` にはリクエストの特定のパラメータが含まれる
+
+あとは `getStaticProps` と同様(のはず)。
+
+== クライアントサイドレンダリング
+
+クライアントサイドレンダリングは、ユーザーのダッシュボードページを作るときなどに有効。
+
+* ダッシュボードはプライベートなものでユーザーに固有のページである
+* SEO は関係ない
+* ページがプリレンダリングされる必要はない
+* データは頻繁に更新されリクエスト時のデータ取得を必要とする
+
+クライアントサイドでデータ取得をする場合は **SWR** というデータフェッチ用の React フックを推奨。
+下記に対応している。
+
+* キャッシング
+* 再検証（revalidation）
+* フォーカストラッキング
+* インターバルを開けた再フェッチ など
+
+.サンプル
+[source, javascript]
+----
+import useSWR from 'swr'
+
+function Profile() {
+  const { data, error } = useSWR('/api/user', fetch)
+
+  if (error) return <div>failed to load</div>
+  if (!data) return <div>loading...</div>
+  return <div>hello {data.name}!</div>
+}
+----
