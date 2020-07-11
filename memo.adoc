@@ -84,12 +84,13 @@ CSSモジュール::
 ----
 import styles from './layout.module.css' // <1>
 
-export default function Layout({ children }) {
+export default function Layout({ children }) { // <3>
   return <div className={styles.container}>{children}</div> // <2>
 }
 ----
 <1> `styles` として CSS モジュールをインポートする
 <2> `styles.<class-name>` を `className` として使う
+<3> 分割代入。引数のオブジェクトから `children` プロパティを変数 `children` として定義
 
 グローバルな CSS::
 +
@@ -218,3 +219,130 @@ function Profile() {
   return <div>hello {data.name}!</div>
 }
 ----
+
+== 動的ルーティングによる静的ページの生成
+
+サンプルの要件としては次の通り。
+
+* 各投稿のパスは `/posts/<id>`
+* `<id>` はソースとなるファイル名を利用する
+
+実現するには下記の手順をたどる。
+
+--
+* ソースに応じて動的にパスが変わる React コンポーネントを準備
+* React コンポーネント内では下記を実装
+[horizontal]
+`getStaticPaths`:: パス (`/posts/<id>`) を生成する
+`getStaticProps`:: パスに紐づく個々のページのデータを取得して、
+React コンポーネントの default へ渡す
+--
+
+getStaticPaths::
++
+--
+[source,javascript]
+----
+export async function getStaticPaths() {
+  const paths = getAllPostIds()
+  return {
+    paths,
+    fallback: false
+  }
+  // `paths` は以下のような配列を返す必要がある:
+  // [
+  //   {
+  //     params: {
+  //       id: 'ssg-ssr'
+  //     }
+  //   },
+  //   {
+  //     params: {
+  //       id: 'pre-rendering'
+  //     }
+  //   }
+  // ]
+}
+----
+--
++
+--
+NOTE: 開発環境では、getStaticPaths は毎回のリクエストごとに実行されます。
+--
++
+--
+fallback について::
+[horizontal]
+false::: getStaticPaths から return されていないあらゆるパスは、アクセスすると 404 ページ になる
+true::: getStaticPaths から return されたパスはビルド時に HTML としてレンダーされる。
+--
+
+getStaticProps::
++
+--
+[source,javascript]
+----
+export async function getStaticProps({ params }) {
+  // `getStaticPaths` がある場合には自動的に `params` が渡ってくる？
+  const postData = getPostData(params.id)
+  return {
+    props: {
+      postData
+    }
+  }
+  // `postData` は以下のようなオブジェクトを返す必要がある:
+  // {
+  //   id, // <1>
+  //   ...matterResult.data // <2>
+  // }
+}
+----
+<1> 省略プロパティ名。 `"id": id` の省略記法。
+<2> スプレッド構文。オブジェクトが展開される。
+--
+
+dangerouslySetInnerHTML::
+`dangerouslySetInnerHTML` は React の DOM 要素。
+動的に html を生成する。
+XSSのリスクがあるため `dangerously` の名称。
+
+動的ルーティング持ったページにリンクを貼るには `Link` コンポーネントを使う。
+
+[source,javascript]
+----
+<li className={utilStyles.listItem} key={id}>
+  <Link href="/posts/[id]" as={`/posts/${id}`}> // <1> <2>
+    <a>{title}</a>
+  </Link>
+  <br />
+  <small className={utilStyles.lightText}>
+    <Date dateString={date} />
+  </small>
+</li>
+----
+<1> href には [id] と定義。(React 側で自動的に変数を解釈する？)
+<2> as prop には実際のパス。
+
+[quote]
+____
+独自の 404 ページを作成するには、pages/404.js を作成してください。このファイルはビルド時に静的に生成されます。
+____
+
+[source,javascript]
+----
+// pages/404.js
+export default function Custom404() {
+  return <h1>404 - Page Not Found</h1>
+}
+----
+
+
+
+== その他
+
+import のブラケットについて。
+https://stackoverflow.com/questions/36795819/when-should-i-use-curly-braces-for-es6-import
+
+npm install gray-matter
+npm install remark remark-html
+npm install date-fns
