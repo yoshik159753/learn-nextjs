@@ -336,6 +336,22 @@ export default function Custom404() {
 }
 ----
 
+== API ルート
+
+[source,javascript]
+----
+export default (req, res) => { // <1> <2>
+  res.status(200).json({ text: 'Hello' })
+}
+----
+<1> req はリクエストデータで http.IncomingMessage のインスタンス
+<2> res はレスポンスデータで http.ServerResponse のインスタンス
+
+API ルートはサーバーサイドで処理している模様。
+なので、 `getStaticProps` や `getStaticPaths` といった静的生成の仕組みは使うべきではない。
+
+TIP: つまり、 Next を使えば、Javascript で簡易なWebサーバーも作れるかも？
+
 
 
 == その他
