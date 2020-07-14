@@ -23,7 +23,7 @@ export function getSortedPostsData() {
     // データを id と合わせる
     return {
       id,
-      ...matterResult.data
+      ...(matterResult.data as { date: string; title: string })
     }
   })
   // 投稿を日付でソートする
@@ -61,7 +61,7 @@ export function getAllPostIds() {
   })
 }
 
-export async function getPostData(id) {
+export async function getPostData(id: string) {
   // ※ async の宣言は、 remark で await する必要があるため。
 
   const fullPath = path.join(postsDirectory, `${id}.md`)
@@ -80,6 +80,6 @@ export async function getPostData(id) {
   return {
     id,
     contentHtml,
-    ...matterResult.data
+    ...(matterResult.data as { date: string; title: string })
   }
 }

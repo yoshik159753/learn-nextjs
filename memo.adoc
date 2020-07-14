@@ -352,7 +352,52 @@ API ルートはサーバーサイドで処理している模様。
 
 TIP: つまり、 Next を使えば、Javascript で簡易なWebサーバーも作れるかも？
 
+== TypeScript
 
+. PJルートに `tsconfig.json` を作る
+. install
++
+--
+[source,bash]
+----
+# npm を使っている場合
+npm install --save-dev typescript @types/react @types/node
+
+# Yarn を使っている場合
+yarn add --dev typescript @types/react @types/node
+----
+--
++
+--
+[WARNING]
+install しないとサーバー起動時に `It looks like you're trying to use TypeScript but do not have the required package(s) installed.` といったエラーがでる。
+--
+. installl 後にサーバー起動
+
+[WARNING]
+自動生成される `next-env.d.ts` はいじらないこと。
+
+引数などにて、必須だけど使わない引数には `_` を用いるのがスタンダード。？
+
+[source,javascript]
+----
+import { NextApiRequest, NextApiResponse } from 'next'
+
+export default (_: NextApiRequest, res: NextApiResponse) => {
+  res.status(200).json({ text: 'Hello' })
+}
+----
+
+パッケージ内や DefinitelyTypes に型定義がないライブラリは、トップレベルに global.d.ts ファイルを作成して型宣言を加える。
+
+.global.d.ts
+[source,javascript]
+----
+declare module 'remark-html' {
+  const html: any
+  export default html
+}
+----
 
 == その他
 
