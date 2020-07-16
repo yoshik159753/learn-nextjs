@@ -1,6 +1,9 @@
 = memo
 
-https://qiita.com/thesugar/items/01896c1faa8241e6b1bc#nextjs-%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB[大幅にリニューアルされた Next.js のチュートリアルをどこよりも早く全編和訳しました]
+== 参照元
+
+* https://qiita.com/thesugar/items/01896c1faa8241e6b1bc#nextjs-%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB[大幅にリニューアルされた Next.js のチュートリアルをどこよりも早く全編和訳しました]
+* https://nextjs.org/learn/basics/create-nextjs-app[Learn Next.js (公式)]
 
 == 初期化
 
@@ -399,11 +402,97 @@ declare module 'remark-html' {
 }
 ----
 
+== フォルダ構成
+
+[source,bash]
+----
+$ tree -a -I "node_modules|\.next|\.git" --charset unicode
+.
+|-- .gitignore
+|-- README.md
+|-- components // <13>
+|   |-- date.tsx
+|   |-- layout.module.css // <4>
+|   `-- layout.tsx
+|-- global.d.ts // <16>
+|-- lib // <9>
+|   `-- posts.tsx
+|-- memo.adoc
+|-- next-env.d.ts // <15>
+|-- package-lock.json
+|-- package.json
+|-- pages // <1>
+|   |-- _app.tsx <5>
+|   |-- api // <11>
+|   |   `-- hello.tsx // <12>
+|   |-- index.tsx // <2>
+|   `-- posts
+|       `-- [id].tsx // <10>
+|-- posts // <8>
+|   |-- pre-rendering.md
+|   `-- ssg-ssr.md
+|-- public // <3>
+|   |-- favicon.ico
+|   |-- images
+|   |   `-- profile.jpg
+|   `-- vercel.svg
+|-- styles
+|   |-- global.css // <6>
+|   `-- utils.module.css // <7>
+|-- tsconfig.json // <14>
+`-- yarn.lock
+----
+<1> (規約) Next.js がページとしてエクスポートする React コンポーネント。
+pages ディレクトリ内のファイル名にもとづいてルーティングをする。(ファイルシステムルーティング)
+<2> 例えば `/` にアクセスすると、この `index.js(or index.tsx)` を表示する。
+<3> (規約) 静的な asset を管理する。
+pages ディレクトリと同様に、public 内のファイルはアプリケーションのルート（root, `/`）から参照することができる。
+<4> (規約) `.module.css` は React における命名規則。
+<5> (規約) すべてのページに共通するトップレベルのコンポーネント。
+状態の保持や、グローバルな CSS をインポートすることができる。
+<6> グローバルな CSS はどこにでも配置できるが、インポートしてよいのは _app.js(or tsx) のみ。
+<7> 複数のコンポーネントからインポートされる css モジュール。
+<8> ブログの元データファイル群。
+<9> アプリ内で共有するライブラリ群。主に logic に関するファイル群を管理する。
+<10> (規約) [ で始まり ] で終わるページは、Next.js では動的なページになる。
+この場合、 `/posts/<id>` のエンドポイントでアクセスできる。
+<11> API ルート用のディレクトリ。規約ではないがスタンダードな実装。
+<12> 例えば `/api/hello` にアクセスすると、このファイル内の処理を実行する。
+<13> アプリ内で共有するコンポーネント群。主に view に関するファイル群を管理する。
+<14> TypeScript 用の config ファイル。カスタマイズ可能。
+<15> TypeScript 用の config ファイル。編集禁止。
+<16> パッケージ内や DefinitelyTypes に型定義がないパッケージは、トップレベルに global.d.ts ファイルを作成して型宣言を加える
+
 == その他
 
-import のブラケットについて。
+import のブラケットについて::
 https://stackoverflow.com/questions/36795819/when-should-i-use-curly-braces-for-es6-import
 
+コマンド群::
++
+--
+[source,bash]
+----
+npm init next-app nextjs-blog --example "https://github.com/zeit/next-learn-starter/tree/master/learn-starter"
+
+npm run dev
+# or
+yarn dev
+
+npm install classnames
+
+npm install sass
+
 npm install gray-matter
+
 npm install remark remark-html
+
 npm install date-fns
+
+npm run build
+
+npm run start
+
+npm install --save-dev typescript @types/react @types/node
+----
+--
